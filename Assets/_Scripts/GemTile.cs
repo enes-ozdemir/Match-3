@@ -1,5 +1,6 @@
 ﻿using _Scripts.Managers;
 using _Scripts.SO;
+using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using UnityEngine;
 
@@ -36,6 +37,7 @@ namespace _Scripts
             _gem = gem;
             _gridManager = gridManager;
             _spriteRenderer.sprite = gem.sprite;
+            transform.localScale = new Vector3(1,1,1);
             SetGemPosition(row, col);
         }
 
@@ -46,6 +48,8 @@ namespace _Scripts
                 //todo fix this
                 _gridManager.InitGemAtPosition(_gem, this, row, col);
             }));
+           
+
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using _Scripts.SO;
 using _Scripts.Systems;
@@ -21,7 +22,7 @@ namespace _Scripts.Managers
 
         private void Awake()
         {
-            tileInputManager.onTileSwapped += SwapTilesOnArray;
+            tileInputManager.onTileSwapped += SwapTilesCo;
         }
 
         private void Start()
@@ -33,15 +34,72 @@ namespace _Scripts.Managers
             FillGrid();
         }
 
-        private void SwapTilesOnArray(Tile firstTile, Tile secondTile)
+        private void SwapTilesCo(Tile firstTile, Tile secondTile) =>
+            StartCoroutine(SwapTilesOnArray(firstTile, secondTile));
+
+        private IEnumerator SwapTilesOnArray(Tile firstTile, Tile secondTile)
         {
             var clickedGemTile = _gemArray[firstTile.x, firstTile.y];
             var targetGemTile = _gemArray[secondTile.x, secondTile.y];
 
             clickedGemTile.MoveTo(targetGemTile.x, targetGemTile.y);
             targetGemTile.MoveTo(clickedGemTile.x, clickedGemTile.y);
-            
-      
+
+            yield return new WaitForSeconds(0.5f);
+
+            var firstTileMatches = FindAllMatches(firstTile.x, firstTile.y);
+            var secondTileMatches = FindAllMatches(secondTile.x, secondTile.y);
+
+            if (firstTileMatches.Count == 0 && secondTileMatches.Count == 0)
+            {
+                clickedGemTile.MoveTo(targetGemTile.x, targetGemTile.y);
+                targetGemTile.MoveTo(clickedGemTile.x, clickedGemTile.y);
+            }
+            else
+            {
+                yield return new WaitForSeconds(0.5f);
+                RemoveGems(firstTileMatches);
+                RemoveGems(secondTileMatches);
+            }
+        }
+
+        private void RemoveGem(int x, int y)
+        {
+            var gemToRemove = _gemArray[x, y];
+
+            if (gemToRemove != null)
+            {
+                _gemArray[x, y] = null;
+                gemToRemove.transform.DOScale(0, 0.5f).OnComplete((() => { gemToRemove.gameObject.SetActive(false); }));
+            }
+        }
+
+        private void RemoveGems(List<GemTile> gemList)
+        {
+            foreach (var gem in gemList)
+            {
+                var gemToRemove = _gemArray[gem.x, gem.y];
+
+                if (gemToRemove != null)
+                {
+                    _gemArray[gem.x, gem.y] = null;
+                    gemToRemove.transform.DOScale(0, 0.5f).OnComplete((() =>
+                    {
+                        gemToRemove.gameObject.SetActive(false);
+                    }));
+                }
+            }
+        }
+
+        public void ClearBoard()
+        {
+            for (int row = 0; row < gridRowCount; row++)
+            {
+                for (int column = 0; column < gridColumnCount; column++)
+                {
+                    RemoveGem(row, column);
+                }
+            }
         }
 
         private void SetupTiles()
@@ -74,14 +132,36 @@ namespace _Scripts.Managers
             {
                 for (int col = 0; col < gridColumnCount; col++)
                 {
-                    var gemObject =
-                        ObjectPooler.Instance.SpawnFromPool("Gem", transform.position, quaternion.identity, transform);
-                    var randomGem = gemSystem.GetRandomGem();
-                    var gemTile = gemObject.GetComponent<GemTile>();
+                    FillPositionRandomly(row, col);
 
-                    InitGemAtPosition(randomGem, gemTile, row, col);
+                    while (IsGemNotValid(row, col))
+                    {
+                        RemoveGem(row, col);
+                        FillPositionRandomly(row, col);
+                    }
                 }
             }
+        }
+
+        private bool IsGemNotValid(int row, int col, int minLenght = 3)
+        {
+            var leftMatch = FindMatch(row, col, Vector2.left, minLenght);
+            var downMatch = FindMatch(row, col, Vector2.down, minLenght);
+
+            if (leftMatch == null) leftMatch = new List<GemTile>();
+            if (downMatch == null) downMatch = new List<GemTile>();
+
+            return leftMatch.Count > 0 || downMatch.Count > 0;
+        }
+
+        private void FillPositionRandomly(int row, int col)
+        {
+            var gemObject =
+                ObjectPooler.Instance.SpawnFromPool("Gem", transform.position, quaternion.identity, transform);
+            var randomGem = gemSystem.GetRandomGem();
+            var gemTile = gemObject.GetComponent<GemTile>();
+
+            InitGemAtPosition(randomGem, gemTile, row, col);
         }
 
         private List<GemTile> FindMatch(int x, int y, Vector2 dir, int minMatchLenght = 3)
@@ -106,6 +186,7 @@ namespace _Scripts.Managers
                 if (!IsPositionValid(nextRow, nextCol)) break;
 
                 var nextTile = _gemArray[nextRow, nextCol];
+                if (nextTile == null) break;
 
                 if (nextTile.GetGemType() == startTile.GetGemType() && !matches.Contains(nextTile))
                 {
@@ -116,7 +197,7 @@ namespace _Scripts.Managers
 
             if (matches.Count >= minMatchLenght)
             {
-                print("Its a mactch");
+                print("Its a match");
                 return matches;
             }
 
@@ -164,8 +245,8 @@ namespace _Scripts.Managers
 
         private bool IsPositionValid(int nextRow, int nextCol)
         {
-            return (nextRow < 0 || nextRow >= gridRowCount
-                                || nextCol < 0 || nextCol >= gridColumnCount);
+            return !(nextRow < 0 || nextRow >= gridRowCount
+                                 || nextCol < 0 || nextCol >= gridColumnCount);
         }
     }
 }
