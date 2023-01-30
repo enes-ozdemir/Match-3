@@ -20,7 +20,7 @@ namespace _Scripts.Managers
 
         public void DragTileToTarget(Tile tile)
         {
-            if (_selectedTile == null) return;
+            if (_selectedTile == null || !CanSwap(tile, _selectedTile)) return;
 
             _targetTile = tile;
         }
@@ -38,6 +38,12 @@ namespace _Scripts.Managers
 
             _selectedTile = null;
             _targetTile = null;
+        }
+
+        private bool CanSwap(Tile selectedTile, Tile targetTile)
+        {
+            return (Mathf.Abs(selectedTile.x - targetTile.x) == 1 && selectedTile.y == targetTile.y) ||
+                   (Mathf.Abs(selectedTile.y - targetTile.y) == 1 && selectedTile.x == targetTile.x);
         }
     }
 }

@@ -1,5 +1,4 @@
-﻿using System;
-using _Scripts.Managers;
+﻿using _Scripts.Managers;
 using _Scripts.SO;
 using DG.Tweening;
 using UnityEngine;
@@ -22,6 +21,8 @@ namespace _Scripts
         {
             _spriteRenderer = GetComponent<SpriteRenderer>();
         }
+
+        public GemType GetGemType() => _gem.gemType;
 
         private void SetGemPosition(int row, int col)
         {
