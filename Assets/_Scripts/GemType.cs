@@ -6,7 +6,6 @@ namespace _Scripts
         RedGem,
         YellowGem,
         GreenGem,
-        PurpleGem,
-        Empty
+        PurpleGem
     }
 }
