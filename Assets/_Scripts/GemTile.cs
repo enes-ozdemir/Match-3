@@ -1,53 +1,50 @@
 ﻿using System;
+using _Scripts.Managers;
 using _Scripts.SO;
+using DG.Tweening;
 using UnityEngine;
 
 namespace _Scripts
 {
     public class GemTile : MonoBehaviour
     {
-        [SerializeField] private Gem gem;
-        private int _x;
-        private int _y;
-        public bool _isDestroyed;
+        private Gem _gem;
+        public int x;
+        public int y;
         private SpriteRenderer _spriteRenderer;
+        private Camera _camera;
+        private Vector3 _firstTouchPos;
+        private Vector3 _endTouchPos;
+
+        private GridManager _gridManager;
 
         private void Awake()
         {
             _spriteRenderer = GetComponent<SpriteRenderer>();
         }
 
-        public void SetGemPosition(int x, int y)
+        private void SetGemPosition(int row, int col)
         {
-            transform.position = new Vector2(x, y);
-            _x = x;
-            _y = y;
+            transform.position = new Vector2(row, col);
+            x = row;
+            y = col;
         }
 
-        public void InitializeGem(Gem gem, int x, int y)
+        public void InitializeGem(Gem gem, int row, int col, GridManager gridManager)
         {
-            this.gem = gem;
+            _gem = gem;
+            _gridManager = gridManager;
             _spriteRenderer.sprite = gem.sprite;
-            SetGemPosition(x, y);
+            SetGemPosition(row, col);
         }
 
-        public GemTile(Gem gem, int x, int y)
+        public void MoveTo(int row, int col)
         {
-            gem = gem;
-            _x = x;
-            _y = y;
-
-            _isDestroyed = false;
-        }
-
-        public Gem GetGem()
-        {
-            return gem;
-        }
-
-        public Vector2Int GetWorldPosition()
-        {
-            return new Vector2Int(_x, _y);
+            transform.DOMove(new Vector3(row, col, 0), 0.5f).OnComplete((() =>
+            {
+                //todo fix this
+                _gridManager.InitGemAtPosition(_gem, this, row, col);
+            }));
         }
     }
 }

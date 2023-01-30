@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
-namespace _Scripts
+namespace _Scripts.Util
 {
     public class ObjectPooler : MonoBehaviour
     {
@@ -27,20 +27,18 @@ namespace _Scripts
 
         private Dictionary<string, Queue<GameObject>> _poolDictionary = new Dictionary<string, Queue<GameObject>>();
         public List<Pool> pools;
-        private Transform _activeObjectParent;
 
         private void SetPool()
         {
-            _activeObjectParent = new GameObject("ActiveGemParent").transform;
-            GameObject inActiveCubesParent = new GameObject("InActiveGemsParent");
+            var inActiveCubesParent = new GameObject("InActiveGemsParent");
 
-            foreach (Pool pool in pools)
+            foreach (var pool in pools)
             {
-                Queue<GameObject> objectPool = new Queue<GameObject>();
+                var objectPool = new Queue<GameObject>();
 
                 for (int i = 0; i < pool.size; i++)
                 {
-                    GameObject obj = Instantiate(pool.gameObject, inActiveCubesParent.transform);
+                    var obj = Instantiate(pool.gameObject, inActiveCubesParent.transform);
                     obj.SetActive(false);
                     objectPool.Enqueue(obj);
                 }
@@ -49,18 +47,17 @@ namespace _Scripts
             }
         }
 
-        public GameObject SpawnGemFromPool(string tag, Vector3 position, Quaternion rotation)
+        public GameObject SpawnFromPool(string prefabTag, Vector3 position, Quaternion rotation, Transform parent)
         {
-            if (!_poolDictionary.ContainsKey(tag)) return null;
+            if (!_poolDictionary.ContainsKey(prefabTag)) return null;
 
-            GameObject objectToSpawn = _poolDictionary[tag].Dequeue();
+            var objectToSpawn = _poolDictionary[prefabTag].Dequeue();
 
             objectToSpawn.SetActive(transform);
             objectToSpawn.transform.position = position;
             objectToSpawn.transform.rotation = rotation;
-            objectToSpawn.transform.SetParent(_activeObjectParent);
-            _poolDictionary[tag].Enqueue(objectToSpawn);
-            
+            objectToSpawn.transform.SetParent(parent);
+            _poolDictionary[prefabTag].Enqueue(objectToSpawn);
 
             return objectToSpawn;
         }

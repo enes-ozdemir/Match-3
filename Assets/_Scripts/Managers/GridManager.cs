@@ -1,5 +1,6 @@
 ﻿using _Scripts.SO;
 using _Scripts.Systems;
+using _Scripts.Util;
 using Unity.Mathematics;
 using UnityEngine;
 
@@ -9,13 +10,25 @@ namespace _Scripts.Managers
     {
         [SerializeField] private int gridRowCount = 8;
         [SerializeField] private int gridColumnCount = 8;
-        [SerializeField] private GameObject tilePrefab;
         [SerializeField] private GemController gemSystem;
-
-        private float _cellSize;
+        [SerializeField] private TileInputManager tileInputManager;
 
         private Tile[,] _tileArray;
         private GemTile[,] _gemArray;
+
+        private void Awake()
+        {
+            tileInputManager.onTileSwapped += SwapTilesOnArray;
+        }
+
+        private void SwapTilesOnArray(Tile firstTile, Tile secondTile)
+        {
+            var clickedGemTile = _gemArray[firstTile.x, firstTile.y];
+            var targetGemTile = _gemArray[secondTile.x, secondTile.y];
+
+            clickedGemTile.MoveTo(targetGemTile.x, targetGemTile.y);
+            targetGemTile.MoveTo(clickedGemTile.x, clickedGemTile.y);
+        }
 
         private void Start()
         {
@@ -32,20 +45,22 @@ namespace _Scripts.Managers
             {
                 for (int col = 0; col < gridColumnCount; col++)
                 {
-                    var tileObject = Instantiate(tilePrefab, new Vector3(row, col, 0), Quaternion.identity, transform);
+                    var tileObject = ObjectPooler.Instance.SpawnFromPool("Tile", new Vector3(row, col, 0),
+                        Quaternion.identity, transform);
                     tileObject.name = "Tile " + row + "-" + col;
 
                     var tile = tileObject.GetComponent<Tile>();
                     _tileArray[row, col] = tile;
-                    _tileArray[row, col].SetupTile(row, col, this);
+                    _tileArray[row, col].SetupTile(row, col, this, tileInputManager);
                 }
             }
         }
 
-        private void InitGemAtPosition(Gem randomGem, GemTile gemTile, int x, int y)
+        public void InitGemAtPosition(Gem randomGem, GemTile gemTile, int x, int y)
         {
             if (gemTile == null) return;
-            gemTile.InitializeGem(randomGem, x, y);
+            _gemArray[x, y] = gemTile;
+            gemTile.InitializeGem(randomGem, x, y, this);
         }
 
         private void FillGrid()
@@ -55,11 +70,11 @@ namespace _Scripts.Managers
                 for (int col = 0; col < gridColumnCount; col++)
                 {
                     var gemObject =
-                        ObjectPooler.Instance.SpawnGemFromPool("Gem", transform.position, quaternion.identity);
+                        ObjectPooler.Instance.SpawnFromPool("Gem", transform.position, quaternion.identity, transform);
                     var randomGem = gemSystem.GetRandomGem();
                     var gemTile = gemObject.GetComponent<GemTile>();
 
-                    InitGemAtPosition(randomGem,gemTile, row, col);
+                    InitGemAtPosition(randomGem, gemTile, row, col);
                 }
             }
         }
