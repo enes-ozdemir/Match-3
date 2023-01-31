@@ -1,6 +1,5 @@
 ﻿using _Scripts.Managers;
 using _Scripts.SO;
-using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using UnityEngine;
 
@@ -25,7 +24,7 @@ namespace _Scripts
 
         public GemType GetGemType() => _gem.gemType;
 
-        private void SetGemPosition(int row, int col)
+        public void SetGemPosition(int row, int col)
         {
             transform.position = new Vector2(row, col);
             x = row;
@@ -37,19 +36,17 @@ namespace _Scripts
             _gem = gem;
             _gridManager = gridManager;
             _spriteRenderer.sprite = gem.sprite;
-            transform.localScale = new Vector3(1,1,1);
+            transform.localScale = new Vector3(1, 1, 1);
             SetGemPosition(row, col);
         }
 
-        public void MoveTo(int row, int col)
+        public void MoveTo(int row, int col, float duration = 0.5f)
         {
-            transform.DOMove(new Vector3(row, col, 0), 0.5f).OnComplete((() =>
+            transform.DOMove(new Vector3(row, col, 0), duration).OnComplete((() =>
             {
                 //todo fix this
                 _gridManager.InitGemAtPosition(_gem, this, row, col);
             }));
-           
-
         }
     }
 }

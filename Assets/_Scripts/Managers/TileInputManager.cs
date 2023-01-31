@@ -9,17 +9,31 @@ namespace _Scripts.Managers
         private Tile _targetTile;
 
         public Action<Tile, Tile> onTileSwapped;
+        public Action onInputDisabled;
+        public Action onInputEnabled;
+
+        public bool canInput = true;
+
+        private void Awake()
+        {
+            onInputDisabled += DisableInput;
+            onInputEnabled += EnableInput;
+        }
+
+        private void DisableInput() => canInput = false;
+        private void EnableInput() => canInput = true;
 
         public void SelectTile(Tile tile)
         {
+            if (!canInput) return;
             if (_selectedTile != null) return;
 
-            print($"Clicked to {tile.GetTilePos()}");
             _selectedTile = tile;
         }
 
         public void DragTileToTarget(Tile tile)
         {
+            if (!canInput) return;
             if (_selectedTile == null || !CanSwap(tile, _selectedTile)) return;
 
             _targetTile = tile;
@@ -27,6 +41,7 @@ namespace _Scripts.Managers
 
         public void ReleaseTile()
         {
+            if (!canInput) return;
             if (_selectedTile == null || _targetTile == null) return;
 
             SwapTiles(_selectedTile, _targetTile);
