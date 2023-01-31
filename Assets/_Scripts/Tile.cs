@@ -8,20 +8,13 @@ namespace _Scripts
         public int x;
         public int y;
 
-        private GridManager _gridManager;
         private TileInputManager _tileInputManager;
 
-        public void SetupTile(int row, int col, GridManager gridManager, TileInputManager tileInputManager)
+        public void SetupTile(int row, int col,TileInputManager tileInputManager)
         {
             x = row;
             y = col;
-            _gridManager = gridManager;
             _tileInputManager = tileInputManager;
-        }
-
-        public Vector2Int GetTilePos()
-        {
-            return new Vector2Int(x, y);
         }
 
         private void OnMouseDown()

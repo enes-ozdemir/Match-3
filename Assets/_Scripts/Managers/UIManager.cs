@@ -21,7 +21,9 @@ namespace _Scripts.Managers
             SetScore(0);
         }
 
-        public void SetGameOverUI()
+        public void ResetScore() => scoreManager.SetScore(0);
+
+        public void EnableEndGameUI()
         {
             gameOverUI.gameObject.SetActive(true);
             gameOverUI.OpenGameOverUI(_currentScore);

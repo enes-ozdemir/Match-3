@@ -17,38 +17,49 @@ namespace _Scripts.Managers
         }
 
         #endregion
-        
+
         [SerializeField] private List<Level> gameLevels;
         [SerializeField] private UIManager uiManager;
         [SerializeField] private Timer timer;
         [SerializeField] private TileInputManager tileInputManager;
         [SerializeField] private GridManager gridManager;
-        private Level _currentLevel;
         
+        private Level _currentLevel;
+
         private void Start()
         {
             timer.onTimesUp += SetGameOver;
+            StartGame();
+        }
+
+        public void StartGame()
+        {
+            uiManager.ResetScore();
+            //todo change this
             SetLevel(0);
             StartLevel();
+            gridManager.SetupGrid();
         }
+
+        public Vector2Int GetGridSize() => new(_currentLevel.gridSizeX,_currentLevel.gridSizeY);
 
         private void SetGameOver()
         {
-            uiManager.SetGameOverUI();
+            Debug.Log("Game Over");
+            uiManager.EnableEndGameUI();
             tileInputManager.onInputDisabled.Invoke();
         }
 
-        public void SetLevel(int level) => _currentLevel = gameLevels[level];
+        private void SetLevel(int level) => _currentLevel = gameLevels[level];
 
-        public void StartLevel()
+        private void StartLevel()
         {
-            gridManager.ClearGrid();
             if (_currentLevel.timeLimit > 0)
             {
                 timer.StartTimer(_currentLevel.timeLimit);
             }
+
             uiManager.SetTimerUI(timer);
-            gridManager.FillGrid(true);
         }
     }
 }

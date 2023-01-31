@@ -8,14 +8,11 @@ namespace _Scripts
     public class GemTile : MonoBehaviour
     {
         private Gem _gem;
+        private SpriteRenderer _spriteRenderer;
+        private GridManager _gridManager;
+
         public int x;
         public int y;
-        private SpriteRenderer _spriteRenderer;
-        private Camera _camera;
-        private Vector3 _firstTouchPos;
-        private Vector3 _endTouchPos;
-
-        private GridManager _gridManager;
 
         private void Awake()
         {
@@ -35,16 +32,17 @@ namespace _Scripts
         {
             _gem = gem;
             _gridManager = gridManager;
-            _spriteRenderer.sprite = gem.sprite;
-            transform.localScale = new Vector3(1, 1, 1);
+            _spriteRenderer.sprite = _gem.sprite;
+            ResetScale();
             SetGemPosition(row, col);
         }
+
+        private void ResetScale() => transform.localScale = new Vector3(1, 1, 1);
 
         public void MoveTo(int row, int col, float duration = 0.5f)
         {
             transform.DOMove(new Vector3(row, col, 0), duration).OnComplete((() =>
             {
-                //todo fix this
                 _gridManager.InitGemAtPosition(_gem, this, row, col);
             }));
         }

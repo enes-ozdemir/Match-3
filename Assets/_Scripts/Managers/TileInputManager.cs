@@ -51,8 +51,6 @@ namespace _Scripts.Managers
         {
             onTileSwapped.Invoke(selectedTile, targetTile);
             DisableInput();
-            // GameManager.Instance.SetState(GameState.Animating);
-            //todo state change
             _selectedTile = null;
             _targetTile = null;
         }

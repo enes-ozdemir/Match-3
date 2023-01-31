@@ -5,15 +5,21 @@ using System.Linq;
 
 namespace _Scripts.Managers
 {
-    public class MatchManager : MonoBehaviour
+    public class MatchManager
     {
         private int _gridRowCount;
         private int _gridColumnCount;
 
-        public void SetGridSize(int rowCount, int colCount)
+        public MatchManager(Vector2Int grid)
         {
-            _gridRowCount = rowCount;
-            _gridColumnCount = colCount;
+            _gridRowCount = grid.x;
+            _gridColumnCount = grid.y;
+        }
+        
+        public MatchManager(int x,int y)
+        {
+            _gridRowCount = x;
+            _gridColumnCount = y;
         }
 
         private bool IsPositionValid(int nextRow, int nextCol)

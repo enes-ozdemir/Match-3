@@ -7,27 +7,32 @@ namespace _Scripts.Managers
 {
     public class CollapseManager : MonoBehaviour
     {
-        //todo fix here
-        [SerializeField] private int gridRowCount = 8;
-        [SerializeField] private int gridColumnCount = 8;
-        [SerializeField] private MatchManager matchManager;
         [SerializeField] private TileInputManager tileInputManager;
         [SerializeField] private GridManager gridManager;
+
+        private MatchManager _matchManager;
+        private int _gridColumnCount;
+
+        private void Start()
+        {
+            var gridSize = LevelManager.Instance.GetGridSize();
+            _gridColumnCount = gridSize.y;
+            _matchManager = new MatchManager(gridSize);
+        }
 
         private List<GemTile> CollapseColumn(int col, float collapseTime = 0.3f)
         {
             var movingPieces = new List<GemTile>();
-            for (int i = 0; i < gridColumnCount - 1; i++)
+            for (int i = 0; i < _gridColumnCount - 1; i++)
             {
                 if (GridManager.gemArray[col, i] == null)
                 {
-                    for (int j = i + 1; j < gridColumnCount; j++)
+                    for (int j = i + 1; j < _gridColumnCount; j++)
                     {
                         if (GridManager.gemArray[col, j] != null)
                         {
-                            GridManager.gemArray[col, j].MoveTo(col, i);
-                            GridManager.gemArray[col, i] = GridManager.gemArray[col, j];
-                            GridManager.gemArray[col, i].SetGemPosition(col, i);
+                            CollapseGems(col, j, i);
+                            
                             if (!movingPieces.Contains(GridManager.gemArray[col, i]))
                             {
                                 movingPieces.Add(GridManager.gemArray[col, i]);
@@ -43,12 +48,19 @@ namespace _Scripts.Managers
             return movingPieces;
         }
 
+        private void CollapseGems(int col, int j, int i)
+        {
+            GridManager.gemArray[col, j].MoveTo(col, i);
+            GridManager.gemArray[col, i] = GridManager.gemArray[col, j];
+            GridManager.gemArray[col, i].SetGemPosition(col, i);
+        }
+
         private List<GemTile> CollapseColumn(List<GemTile> gemTiles)
         {
             var movingPieces = new List<GemTile>();
-            var columsToCollapse = GetColumns(gemTiles);
+            var columnsToCollapse = GetColumns(gemTiles);
 
-            foreach (var col in columsToCollapse)
+            foreach (var col in columnsToCollapse)
             {
                 movingPieces = movingPieces.Union(CollapseColumn(col)).ToList();
             }
@@ -86,23 +98,17 @@ namespace _Scripts.Managers
             {
                 yield return StartCoroutine(ClearAndCollapseCo(matches));
                 yield return null;
-                yield return StartCoroutine(gridManager.RefillRoutine());
-                matches = matchManager.FindAllMatches();
+                gridManager.FillGrid(true);
+                matches = _matchManager.FindAllMatches();
 
                 yield return new WaitForSeconds(0.2f);
             } while (matches.Count != 0);
 
-            // GameManager.Instance.SetState(GameState.WaitingForInput);
             tileInputManager.onInputEnabled.Invoke();
         }
 
         private IEnumerator ClearAndCollapseCo(List<GemTile> tileList)
         {
-            foreach (var tile in tileList)
-            {
-                print(tile.GetGemType() + $"Count list {tileList.Count}");
-            }
-
             yield return new WaitForSeconds(0.5f);
             var matches = tileList;
 
@@ -118,7 +124,7 @@ namespace _Scripts.Managers
                 }
 
                 yield return new WaitForSeconds(0.5f);
-                matches = matchManager.FindMatchesInList(collapsingGems);
+                matches = _matchManager.FindMatchesInList(collapsingGems);
             }
 
             yield return null;
@@ -130,7 +136,7 @@ namespace _Scripts.Managers
             {
                 if (tile != null)
                 {
-                    if (tile.transform.position.y - (float) tile.y > 0.001f)
+                    if (tile.transform.position.y - tile.y > 0.001f)
                     {
                         return false;
                     }

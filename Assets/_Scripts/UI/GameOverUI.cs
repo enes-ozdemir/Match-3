@@ -12,7 +12,7 @@ namespace _Scripts.UI
 
         public void RetryGame()
         {
-            LevelManager.Instance.StartLevel();
+            LevelManager.Instance.StartGame();
             gameObject.SetActive(false);
         }
     }

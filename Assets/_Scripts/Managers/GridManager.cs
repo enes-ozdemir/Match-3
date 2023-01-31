@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using _Scripts.SO;
@@ -12,27 +13,43 @@ namespace _Scripts.Managers
 {
     public class GridManager : MonoBehaviour
     {
-        [SerializeField] private int gridRowCount = 8;
-        [SerializeField] private int gridColumnCount = 8;
-        [SerializeField] private GemController gemSystem;
+        [SerializeField] private GemProvider gemProvider;
         [SerializeField] private TileInputManager tileInputManager;
-        [SerializeField] private MatchManager matchManager;
         [SerializeField] private ScoreManager scoreManager;
 
+        private MatchManager _matchManager;
         private Tile[,] _tileArray;
+        private int _gridRowCount;
+        private int _gridColumnCount;
+
         public static GemTile[,] gemArray;
 
-        private void Awake()
+        public void SetupGrid()
         {
-            matchManager.SetGridSize(gridRowCount, gridColumnCount);
-            _tileArray = new Tile[gridRowCount, gridColumnCount];
-            gemArray = new GemTile[gridRowCount, gridColumnCount];
-        }
+            Debug.Log("Grid is being set up");
+            SetGridSize();
+            _matchManager = new MatchManager(_gridRowCount, _gridColumnCount);
 
-        private void Start()
-        {
+            ClearGrid();
+            SetupArrays(_gridRowCount, _gridColumnCount);
             SetupTiles();
             FillGrid(true);
+        }
+
+        private void SetupArrays(int x, int y)
+        {
+            _tileArray = new Tile[x, y];
+            gemArray = new GemTile[x, y];
+        }
+
+        public void RemoveGems(List<GemTile> gemList)
+        {
+            foreach (var gem in gemList.Where(gem => gem != null))
+            {
+                RemoveGem(gem.x, gem.y);
+            }
+
+            Camera.main.transform.DOShakePosition(0.1f, 0.1f, 1);
         }
 
         private void RemoveGem(int x, int y, float duration = 0.3f, bool isPlayerMove = true)
@@ -50,80 +67,67 @@ namespace _Scripts.Managers
                     }));
                 }));
                 if (isPlayerMove) scoreManager.AddScore(1);
-                //Todo add camera shake maybe
             }
-        }
-
-        public void RemoveGems(List<GemTile> gemList)
-        {
-            foreach (var gem in gemList.Where(gem => gem != null))
-            {
-                RemoveGem(gem.x, gem.y);
-            }
-
-            Camera.main.transform.DOShakePosition(0.1f, 0.1f, 1);
         }
 
         private void SetupTiles()
         {
-            for (int row = 0; row < gridRowCount; row++)
+            for (int row = 0; row < _gridRowCount; row++)
             {
-                for (int col = 0; col < gridColumnCount; col++)
+                for (int col = 0; col < _gridColumnCount; col++)
                 {
-                    var tileObject = ObjectPooler.Instance.SpawnFromPool("Tile", new Vector3(row, col, 0),
+                    var tileObject = ObjectPooler.Instance.SpawnFromPool("Tile", new Vector2(row, col),
                         Quaternion.identity, transform);
                     tileObject.name = "Tile " + row + "-" + col;
 
                     var tile = tileObject.GetComponent<Tile>();
                     _tileArray[row, col] = tile;
-                    _tileArray[row, col].SetupTile(row, col, this, tileInputManager);
+                    _tileArray[row, col].SetupTile(row, col, tileInputManager);
                 }
             }
-        }
-
-        public void InitGemAtPosition(Gem randomGem, GemTile gemTile, int x, int y)
-        {
-            if (gemTile == null) return;
-            gemArray[x, y] = gemTile;
-            gemTile.InitializeGem(randomGem, x, y, this);
         }
 
         public void FillGrid(bool isNewGem = false)
         {
-            for (int row = 0; row < gridRowCount; row++)
+            for (int row = 0; row < _gridRowCount; row++)
             {
-                for (int col = 0; col < gridColumnCount; col++)
+                for (int col = 0; col < _gridColumnCount; col++)
                 {
                     if (gemArray[row, col] != null) continue;
 
-                    FillTileRandomly(row, col, isNewGem);
+                    FillTileWithGem(row, col, isNewGem);
 
                     while (IsGemNotValid(row, col))
                     {
                         RemoveGem(row, col, 0f, false);
-                        FillTileRandomly(row, col, isNewGem);
+                        FillTileWithGem(row, col, isNewGem);
                     }
                 }
             }
 
+            Debug.Log("Grid filled with Gems");
             tileInputManager.onInputEnabled.Invoke();
         }
 
-        public void ClearGrid()
+        private void ClearGrid()
         {
-            for (int row = 0; row < gridRowCount; row++)
+            if (gemArray == null) return;
+
+            for (int row = 0; row < _gridRowCount; row++)
             {
-                for (int col = 0; col < gridColumnCount; col++)
+                for (int col = 0; col < _gridColumnCount; col++)
                 {
                     RemoveGem(row, col, 1f, false);
                 }
             }
+
+            Debug.Log("Grid Cleared");
         }
 
         private bool IsGemNotValid(int row, int col, int minLenght = 3)
         {
-            var leftMatch = matchManager.FindMatch(row, col, Vector2.left, minLenght);
-            var downMatch = matchManager.FindMatch(row, col, Vector2.down, minLenght);
+            var leftMatch = _matchManager.FindMatch(row, col, Vector2.left, minLenght);
+            var downMatch = _matchManager.FindMatch(row, col, Vector2.down, minLenght);
 
             if (leftMatch == null) leftMatch = new List<GemTile>();
             if (downMatch == null) downMatch = new List<GemTile>();
@@ -131,11 +135,11 @@ namespace _Scripts.Managers
             return leftMatch.Count > 0 || downMatch.Count > 0;
         }
 
-        private void FillTileRandomly(int row, int col, bool isNewGem = false)
+        private void FillTileWithGem(int row, int col, bool isNewGem = false)
         {
             var gemObject =
                 ObjectPooler.Instance.SpawnFromPool("Gem", transform.position, quaternion.identity, transform);
-            var randomGem = gemSystem.GetRandomGem();
+            var randomGem = gemProvider.GetRandomGem();
             var gemTile = gemObject.GetComponent<GemTile>();
             InitGemAtPosition(randomGem, gemTile, row, col);
 
@@ -146,10 +150,18 @@ namespace _Scripts.Managers
             }
         }
 
-        public IEnumerator RefillRoutine()
+        public void InitGemAtPosition(Gem randomGem, GemTile gemTile, int x, int y)
         {
-            FillGrid(true);
-            yield return null;
+            if (gemTile == null) return;
+            gemArray[x, y] = gemTile;
+            gemTile.InitializeGem(randomGem, x, y, this);
+        }
+
+        private void SetGridSize()
+        {
+            var gridSize = LevelManager.Instance.GetGridSize();
+            _gridRowCount = gridSize.x;
+            _gridColumnCount = gridSize.y;
         }
     }
 }
