@@ -17,6 +17,7 @@ namespace _Scripts.Managers
         [SerializeField] private GemController gemSystem;
         [SerializeField] private TileInputManager tileInputManager;
         [SerializeField] private MatchManager matchManager;
+        [SerializeField] private ScoreManager scoreManager;
 
         private Tile[,] _tileArray;
         public static GemTile[,] gemArray;
@@ -24,28 +25,32 @@ namespace _Scripts.Managers
         private void Awake()
         {
             matchManager.SetGridSize(gridRowCount, gridColumnCount);
+            _tileArray = new Tile[gridRowCount, gridColumnCount];
+            gemArray = new GemTile[gridRowCount, gridColumnCount];
         }
 
         private void Start()
         {
-            _tileArray = new Tile[gridRowCount, gridColumnCount];
-            gemArray = new GemTile[gridRowCount, gridColumnCount];
-
             SetupTiles();
             FillGrid(true);
         }
 
-        private void RemoveGem(int x, int y, float duration = 0.5f)
+        private void RemoveGem(int x, int y, float duration = 0.3f, bool isPlayerMove = true)
         {
             var gemToRemove = gemArray[x, y];
 
             if (gemToRemove != null)
             {
                 gemArray[x, y] = null;
-                gemToRemove.transform.DOScale(0, duration).OnComplete((() =>
+                gemToRemove.transform.DOScale(1.2f, duration).OnComplete((() =>
                 {
-                    gemToRemove.gameObject.SetActive(false);
+                    gemToRemove.transform.DOScale(0, duration).OnComplete((() =>
+                    {
+                        gemToRemove.gameObject.SetActive(false);
+                    }));
                 }));
+                if (isPlayerMove) scoreManager.AddScore(1);
+                //Todo add camera shake maybe
             }
         }
 
@@ -55,17 +60,8 @@ namespace _Scripts.Managers
             {
                 RemoveGem(gem.x, gem.y);
             }
-        }
 
-        public void ClearGrid()
-        {
-            for (int row = 0; row < gridRowCount; row++)
-            {
-                for (int column = 0; column < gridColumnCount; column++)
-                {
-                    RemoveGem(row, column);
-                }
-            }
+            Camera.main.transform.DOShakePosition(0.1f, 0.1f, 1);
         }
 
         private void SetupTiles()
@@ -92,7 +88,7 @@ namespace _Scripts.Managers
             gemTile.InitializeGem(randomGem, x, y, this);
         }
 
-        private void FillGrid(bool isNewGem = false)
+        public void FillGrid(bool isNewGem = false)
         {
             for (int row = 0; row < gridRowCount; row++)
             {
@@ -104,9 +100,22 @@ namespace _Scripts.Managers
 
                     while (IsGemNotValid(row, col))
                     {
-                        RemoveGem(row, col, 0f);
+                        RemoveGem(row, col, 0f, false);
                         FillTileRandomly(row, col, isNewGem);
                     }
+                }
+            }
+
+            tileInputManager.onInputEnabled.Invoke();
+        }
+
+        public void ClearGrid()
+        {
+            for (int row = 0; row < gridRowCount; row++)
+            {
+                for (int col = 0; col < gridColumnCount; col++)
+                {
+                    RemoveGem(row, col, 1f, false);
                 }
             }
         }

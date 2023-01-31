@@ -23,8 +23,7 @@ namespace _Scripts.Managers
             var clickedGemTile = GridManager.gemArray[firstTile.x, firstTile.y];
             var targetGemTile = GridManager.gemArray[secondTile.x, secondTile.y];
 
-            clickedGemTile.MoveTo(targetGemTile.x, targetGemTile.y);
-            targetGemTile.MoveTo(clickedGemTile.x, clickedGemTile.y);
+            MoveTilesToPosition(clickedGemTile, targetGemTile);
 
             yield return new WaitForSeconds(0.5f);
 
@@ -33,14 +32,20 @@ namespace _Scripts.Managers
 
             if (firstTileMatches.Count == 0 && secondTileMatches.Count == 0)
             {
-                clickedGemTile.MoveTo(targetGemTile.x, targetGemTile.y);
-                targetGemTile.MoveTo(clickedGemTile.x, clickedGemTile.y);
+                MoveTilesToPosition(clickedGemTile, targetGemTile);
+                tileInputManager.onInputEnabled.Invoke();
             }
             else
             {
                 yield return new WaitForSeconds(0.5f);
                 collapseManager.ClearAndRefillBoard(firstTileMatches.Union(secondTileMatches).ToList());
             }
+        }
+
+        private void MoveTilesToPosition(GemTile clickedGemTile, GemTile targetGemTile)
+        {
+            clickedGemTile.MoveTo(targetGemTile.x, targetGemTile.y);
+            targetGemTile.MoveTo(clickedGemTile.x, clickedGemTile.y);
         }
     }
 }

@@ -7,6 +7,7 @@ namespace _Scripts.Managers
 {
     public class CollapseManager : MonoBehaviour
     {
+        //todo fix here
         [SerializeField] private int gridRowCount = 8;
         [SerializeField] private int gridColumnCount = 8;
         [SerializeField] private MatchManager matchManager;
@@ -61,6 +62,7 @@ namespace _Scripts.Managers
 
             foreach (var tile in gemTiles)
             {
+                if (tile == null) continue;
                 if (!columns.Contains(tile.x))
                 {
                     columns.Add(tile.x);
@@ -90,6 +92,7 @@ namespace _Scripts.Managers
                 yield return new WaitForSeconds(0.2f);
             } while (matches.Count != 0);
 
+            // GameManager.Instance.SetState(GameState.WaitingForInput);
             tileInputManager.onInputEnabled.Invoke();
         }
 
