@@ -1,4 +1,4 @@
-﻿using _Scripts.Managers;
+﻿using _Scripts.Gameplay;
 using TMPro;
 using UnityEngine;
 

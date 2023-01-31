@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using _Scripts.Enums;
+using UnityEngine;
 
 namespace _Scripts.SO
 {
