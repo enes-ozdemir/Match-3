@@ -101,14 +101,12 @@ namespace _Scripts.Gameplay
 
         private async UniTask ClearAndCollapseCo(List<GemTile> tileList)
         {
-            await UniTask.Delay(TimeSpan.FromSeconds(0.5f));
-            
             var matches = tileList;
 
             while (matches.Count > 0)
             {
                 gridManager.RemoveGems(matches);
-                await UniTask.Delay(TimeSpan.FromSeconds(0.5f));
+                await UniTask.Delay(TimeSpan.FromSeconds(0.2f));
 
                 var collapsingGems = CollapseColumn(matches);
 
@@ -117,12 +115,12 @@ namespace _Scripts.Gameplay
                     await UniTask.Yield();
                 }
 
-                await UniTask.Delay(TimeSpan.FromSeconds(0.5f));
+                await UniTask.Delay(TimeSpan.FromSeconds(0.2f));
 
                 matches = _matchManager.FindMatchesInList(collapsingGems);
             }
 
-            await UniTask.Delay(TimeSpan.FromSeconds(0.5f));
+            await UniTask.Delay(TimeSpan.FromSeconds(0.2f));
         }
 
         private bool IsCollapsed(List<GemTile> gemTiles)

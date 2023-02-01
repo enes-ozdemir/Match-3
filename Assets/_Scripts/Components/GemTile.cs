@@ -40,7 +40,7 @@ namespace _Scripts.Components
 
         private void ResetScale() => transform.localScale = new Vector3(1, 1, 1);
 
-        public void MoveTo(int row, int col, float duration = 0.5f)
+        public void MoveTo(int row, int col, float duration = 0.3f)
         {
             transform.DOMove(new Vector3(row, col, 0), duration).OnComplete((() =>
             {

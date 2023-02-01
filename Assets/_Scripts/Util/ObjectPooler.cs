@@ -30,7 +30,7 @@ namespace _Scripts.Util
 
         private void SetPool()
         {
-            var inActiveCubesParent = new GameObject("InActiveGemsParent");
+            var inActiveGemsParent = new GameObject("InActiveGemsParent");
 
             foreach (var pool in pools)
             {
@@ -38,7 +38,7 @@ namespace _Scripts.Util
 
                 for (int i = 0; i < pool.size; i++)
                 {
-                    var obj = Instantiate(pool.gameObject, inActiveCubesParent.transform);
+                    var obj = Instantiate(pool.gameObject, inActiveGemsParent.transform);
                     obj.SetActive(false);
                     objectPool.Enqueue(obj);
                 }

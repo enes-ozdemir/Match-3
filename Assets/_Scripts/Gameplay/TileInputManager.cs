@@ -1,5 +1,6 @@
 ﻿using System;
 using _Scripts.Components;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 
 namespace _Scripts.Gameplay
@@ -9,11 +10,11 @@ namespace _Scripts.Gameplay
         private Tile _selectedTile;
         private Tile _targetTile;
 
-        public Action<Tile, Tile> onTileSwapped;
+        public Func<Tile, Tile,UniTask> onTileSwapped;
         public Action onInputDisabled;
         public Action onInputEnabled;
 
-        public bool canInput = true;
+        [HideInInspector] public bool canInput = true;
 
         private void Awake()
         {

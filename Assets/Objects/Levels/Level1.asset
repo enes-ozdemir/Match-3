@@ -12,5 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ab4845f68ac2486cbbe71828ae4f469e, type: 3}
   m_Name: Level1
   m_EditorClassIdentifier: 
-  scoreGoal: 5000
-  timeLimit: 10
+  timeLimit: 60
+  gridSizeX: 8
+  gridSizeY: 8

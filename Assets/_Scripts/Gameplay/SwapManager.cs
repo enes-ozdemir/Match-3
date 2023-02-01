@@ -1,6 +1,8 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Linq;
 using _Scripts.Components;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 
 namespace _Scripts.Gameplay
@@ -13,7 +15,7 @@ namespace _Scripts.Gameplay
 
         private void Awake()
         {
-            tileInputManager.onTileSwapped += SwapTilesCoroutine;
+            tileInputManager.onTileSwapped += SwapTiles;
         }
 
         private void Start()
@@ -21,17 +23,14 @@ namespace _Scripts.Gameplay
             _matchManager = new MatchManager(LevelManager.Instance.GetGridSize());
         }
 
-        private void SwapTilesCoroutine(Tile firstTile, Tile secondTile) =>
-            StartCoroutine(SwapTiles(firstTile, secondTile));
-
-        private IEnumerator SwapTiles(Tile firstTile, Tile secondTile)
+        private async UniTask SwapTiles(Tile firstTile, Tile secondTile)
         {
             var clickedGemTile = GridManager.gemArray[firstTile.x, firstTile.y];
             var targetGemTile = GridManager.gemArray[secondTile.x, secondTile.y];
 
             MoveTilesToPosition(clickedGemTile, targetGemTile);
 
-            yield return new WaitForSeconds(0.5f);
+            await UniTask.Delay(TimeSpan.FromSeconds(0.5f));
 
             var firstTileMatches = _matchManager.FindMatchesInList(firstTile.x, firstTile.y);
             var secondTileMatches = _matchManager.FindMatchesInList(secondTile.x, secondTile.y);
@@ -43,8 +42,9 @@ namespace _Scripts.Gameplay
             }
             else
             {
-                yield return new WaitForSeconds(0.5f);
-                collapseManager.ClearAndRefillBoard(firstTileMatches.Union(secondTileMatches).ToList());
+                await UniTask.Delay(TimeSpan.FromSeconds(0.5f));
+
+              collapseManager.ClearAndRefillBoard(firstTileMatches.Union(secondTileMatches).ToList());
             }
         }
 

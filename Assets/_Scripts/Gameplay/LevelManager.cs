@@ -15,6 +15,7 @@ namespace _Scripts.Gameplay
         private void Awake()
         {
             Instance = this;
+            SetLevel(0);
         }
 
         #endregion
@@ -37,7 +38,6 @@ namespace _Scripts.Gameplay
         {
             uiManager.ResetScore();
             //todo change this
-            SetLevel(0);
             StartLevel();
             gridManager.SetupGrid();
         }
