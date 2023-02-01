@@ -1,11 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using _Scripts.Components;
 using _Scripts.SO;
 using _Scripts.Systems;
 using _Scripts.Util;
-using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using Unity.Mathematics;
 using UnityEngine;
@@ -17,7 +15,6 @@ namespace _Scripts.Gameplay
         [SerializeField] private GemProvider gemProvider;
         [SerializeField] private TileInputManager tileInputManager;
         [SerializeField] private ScoreManager scoreManager;
-
         [SerializeField] private Transform gemParent;
         [SerializeField] private Transform tileParent;
 
@@ -26,9 +23,6 @@ namespace _Scripts.Gameplay
         private int _gridRowCount;
         private int _gridColumnCount;
         private Camera _camera;
-        private int gemSize = 10;
-        private int cellSpacingX = 1;
-        private int cellSpacingY = 1;
 
         public static GemTile[,] gemArray;
 
@@ -39,7 +33,7 @@ namespace _Scripts.Gameplay
             Debug.Log("Grid is being set up");
             SetGridSize();
             _matchManager = new MatchManager(_gridRowCount, _gridColumnCount);
-
+            
             ClearGrid();
             SetupArrays(_gridRowCount, _gridColumnCount);
             SetupTiles();
@@ -52,9 +46,6 @@ namespace _Scripts.Gameplay
             {
                 for (int col = 0; col < _gridColumnCount; col++)
                 {
-                    var tilePos =
-                        new Vector2((row * (gemSize + cellSpacingX)),
-                            col * (gemSize + cellSpacingY));
                     var tileObject = ObjectPooler.Instance.SpawnFromPool("Tile", new Vector2(row, col),
                         Quaternion.identity, tileParent);
                     tileObject.name = "Tile " + row + "-" + col;
@@ -96,7 +87,7 @@ namespace _Scripts.Gameplay
                 }
                 else
                 {
-                    DestroyGemWithAnim(0, gemToRemove);
+                    DestroyGemWithoutAnim(gemToRemove);
                 }
 
                 if (isPlayerMove) scoreManager.AddScore(1);
@@ -105,11 +96,15 @@ namespace _Scripts.Gameplay
 
         private void DestroyGemWithAnim(float duration, GemTile gemToRemove)
         {
-            gemToRemove.transform.DOScale(0, duration).OnComplete(() => { Destroy(gemToRemove.gameObject); });
+            gemToRemove.transform.DOScale(0, duration).OnComplete(() => gemToRemove.gameObject.SetActive(false));
         }
+
+        private void DestroyGemWithoutAnim(GemTile gemToRemove) => gemToRemove.gameObject.SetActive(false);
 
         public void FillGrid(bool isNewGem = false)
         {
+            tileInputManager.onInputDisabled.Invoke();
+
             for (int row = 0; row < _gridRowCount; row++)
             {
                 for (int col = 0; col < _gridColumnCount; col++)
@@ -165,8 +160,9 @@ namespace _Scripts.Gameplay
 
             if (isNewGem)
             {
+                gemObject.SetActive(true);
                 gemObject.transform.position = new Vector3(row, col + 7, 0);
-                gemTile.MoveTo(row, col, 0.2f);
+                gemTile.MoveTo(row, col);
             }
         }
 

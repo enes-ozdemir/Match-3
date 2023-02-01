@@ -1,6 +1,6 @@
 ﻿using System;
-using System.Collections;
 using System.Linq;
+using System.Threading;
 using _Scripts.Components;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
@@ -9,9 +9,9 @@ namespace _Scripts.Gameplay
 {
     public class SwapManager : MonoBehaviour
     {
-        private MatchManager _matchManager;
         [SerializeField] private CollapseManager collapseManager;
         [SerializeField] private TileInputManager tileInputManager;
+        private MatchManager _matchManager;
 
         private void Awake()
         {
@@ -43,8 +43,7 @@ namespace _Scripts.Gameplay
             else
             {
                 await UniTask.Delay(TimeSpan.FromSeconds(0.5f));
-
-              collapseManager.ClearAndRefillBoard(firstTileMatches.Union(secondTileMatches).ToList());
+                collapseManager.ClearAndRefillBoard(firstTileMatches.Union(secondTileMatches).ToList());
             }
         }
 

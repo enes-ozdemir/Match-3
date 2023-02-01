@@ -5,7 +5,7 @@ namespace _Scripts.Gameplay
 {
     public class ScoreManager : MonoBehaviour
     {
-        private int _currentScore = 0;
+        private int _currentScore;
         public Action<int> onScoreChanged;
 
         public void AddScore(int tileAmount)

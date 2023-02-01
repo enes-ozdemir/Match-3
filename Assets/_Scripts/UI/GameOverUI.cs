@@ -8,11 +8,17 @@ namespace _Scripts.UI
     {
         [SerializeField] private TextMeshProUGUI gameOverUIScoreText;
 
-        public void OpenGameOverUI(int score) => gameOverUIScoreText.text = $"Score : {score}";
+        public void SetScore(int score) => gameOverUIScoreText.text = $"Score : {score}";
 
         public void RetryGame()
         {
             LevelManager.Instance.StartGame();
+            gameObject.SetActive(false);
+        }
+        
+        public void NextLevel()
+        {
+            LevelManager.Instance.NextLevel();
             gameObject.SetActive(false);
         }
     }

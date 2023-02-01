@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using _Scripts.Components;
 using Cysharp.Threading.Tasks;
+using Unity.VisualScripting;
 using UnityEngine;
 
 namespace _Scripts.Gameplay
@@ -14,18 +15,20 @@ namespace _Scripts.Gameplay
 
         private MatchManager _matchManager;
         private int _gridColumnCount;
+        private int _gridRowCount;
 
         private void Start()
         {
             var gridSize = LevelManager.Instance.GetGridSize();
             _gridColumnCount = gridSize.y;
+            _gridRowCount = gridSize.x;
             _matchManager = new MatchManager(gridSize);
         }
 
         private List<GemTile> CollapseColumn(int col)
         {
             var movingPieces = new List<GemTile>();
-            for (int i = 0; i < _gridColumnCount - 1; i++)
+            for (int i = 0; i < _gridRowCount - 1; i++)
             {
                 if (GridManager.gemArray[col, i] == null)
                 {
@@ -86,10 +89,10 @@ namespace _Scripts.Gameplay
         {
             tileInputManager.onInputDisabled.Invoke();
             var matches = tileList;
-
+            
             do
             {
-                await ClearAndCollapseCo(matches);
+                await ClearGridAndCollapse(matches);
                 gridManager.FillGrid(true);
                 matches = _matchManager.FindAllMatches();
 
@@ -99,7 +102,7 @@ namespace _Scripts.Gameplay
             tileInputManager.onInputEnabled.Invoke();
         }
 
-        private async UniTask ClearAndCollapseCo(List<GemTile> tileList)
+        private async UniTask ClearGridAndCollapse(List<GemTile> tileList)
         {
             var matches = tileList;
 
@@ -107,8 +110,10 @@ namespace _Scripts.Gameplay
             {
                 gridManager.RemoveGems(matches);
                 await UniTask.Delay(TimeSpan.FromSeconds(0.2f));
-
+                
                 var collapsingGems = CollapseColumn(matches);
+                
+                await UniTask.Delay(TimeSpan.FromSeconds(0.3f));
 
                 while (!IsCollapsed(collapsingGems))
                 {
@@ -120,7 +125,7 @@ namespace _Scripts.Gameplay
                 matches = _matchManager.FindMatchesInList(collapsingGems);
             }
 
-            await UniTask.Delay(TimeSpan.FromSeconds(0.2f));
+            await UniTask.Delay(TimeSpan.FromSeconds(0.5f));
         }
 
         private bool IsCollapsed(List<GemTile> gemTiles)

@@ -22,16 +22,13 @@ namespace _Scripts.UI
 
         public void ResetScore() => scoreManager.SetScore(0);
 
-        public void EnableEndGameUI()
-        {
-            gameOverUI.gameObject.SetActive(true);
-            gameOverUI.OpenGameOverUI(_currentScore);
-        }
+        public void EnableEndGameUI() => gameOverUI.gameObject.SetActive(true);
 
         private void SetScore(int score)
         {
             scoreText.text = score + " pts";
             _currentScore = score;
+            gameOverUI.SetScore(_currentScore);
         }
 
         private void SetTimerText(int time) => timerText.text = time.ToString();
