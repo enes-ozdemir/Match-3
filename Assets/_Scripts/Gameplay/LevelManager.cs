@@ -16,6 +16,10 @@ namespace _Scripts.Gameplay
         {
             Instance = this;
             SetLevel(PlayerPrefs.GetInt("Level", 0));
+#if UNITY_STANDALONE
+            Screen.SetResolution(360, 640, false);
+            Screen.fullScreen = false;
+#endif
         }
 
         #endregion
