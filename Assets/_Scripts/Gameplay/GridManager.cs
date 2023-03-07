@@ -33,7 +33,7 @@ namespace _Scripts.Gameplay
             Debug.Log("Grid is being set up");
             SetGridSize();
             _matchManager = new MatchManager(_gridRowCount, _gridColumnCount);
-            
+
             ClearGrid();
             SetupArrays(_gridRowCount, _gridColumnCount);
             SetupTiles();
@@ -65,8 +65,9 @@ namespace _Scripts.Gameplay
 
         public void RemoveGems(List<GemTile> gemList)
         {
-            foreach (var gem in gemList.Where(gem => gem != null))
+            foreach (var gem in gemList)
             {
+                if (gem == null) continue;
                 RemoveGem(gem.x, gem.y);
             }
 

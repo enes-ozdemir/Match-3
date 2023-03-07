@@ -13,4 +13,4 @@ MonoBehaviour:
   m_Name: YellowGem
   m_EditorClassIdentifier: Assembly-CSharp:DefaultNamespace:Gem
   gemType: 2
-  sprite: {fileID: 21300000, guid: c9a84ddc60d62384daaa703638244120, type: 3}
+  sprite: {fileID: 21300000, guid: c681bf234df47df4eb78eda607328402, type: 3}

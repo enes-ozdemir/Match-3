@@ -13,4 +13,4 @@ MonoBehaviour:
   m_Name: RedGem
   m_EditorClassIdentifier: Assembly-CSharp:DefaultNamespace:Gem
   gemType: 1
-  sprite: {fileID: 21300000, guid: ae0cd454d1c665c4790f4e3bb69d13ac, type: 3}
+  sprite: {fileID: 21300000, guid: 8cd060042a0d2394caaec72d91db4ef4, type: 3}

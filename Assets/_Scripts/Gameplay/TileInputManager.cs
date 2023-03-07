@@ -17,10 +17,16 @@ namespace _Scripts.Gameplay
 
         [HideInInspector] public bool canInput = true;
 
-        private void Awake()
+        private void OnEnable()
         {
             onInputDisabled += DisableInput;
             onInputEnabled += EnableInput;
+        }
+
+        private void OnDisable()
+        {
+            onInputDisabled -= DisableInput;
+            onInputEnabled -= EnableInput;
         }
 
         private void DisableInput() => canInput = false;

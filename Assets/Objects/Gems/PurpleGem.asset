@@ -13,4 +13,4 @@ MonoBehaviour:
   m_Name: PurpleGem
   m_EditorClassIdentifier: Assembly-CSharp:DefaultNamespace:Gem
   gemType: 4
-  sprite: {fileID: 21300000, guid: 48c919ddf379ad142a4c65cc3c7e502c, type: 3}
+  sprite: {fileID: 21300000, guid: da75c1ed80c810443824d0bf4ff581f1, type: 3}

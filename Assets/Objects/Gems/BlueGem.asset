@@ -13,4 +13,4 @@ MonoBehaviour:
   m_Name: BlueGem
   m_EditorClassIdentifier: Assembly-CSharp:DefaultNamespace:Gem
   gemType: 0
-  sprite: {fileID: 21300000, guid: 1b1b2d9f72c44f749b0189755355e51f, type: 3}
+  sprite: {fileID: 21300000, guid: e07d038e72a4da14db729901e25bd778, type: 3}
